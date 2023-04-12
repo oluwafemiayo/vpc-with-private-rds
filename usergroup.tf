@@ -1,78 +1,87 @@
-# # Create the Admin group
-# resource "aws_iam_group" "admin_group" {
-#   name = "Admin"
-# }
+# Creat user and Groups
+module "iam" {
+  source  = "terraform-aws-modules/iam/aws"
+}
 
-# # Create the Dev group
-# resource "aws_iam_group" "dev_group" {
-#   name = "Dev"
-# }
+#Create an IAM Group
+resource "aws_iam_group" "admin" {
+  name = "Admin"
+}
 
-# # Create John user and add to Admin group
-# resource "aws_iam_user" "john_user" {
-#   name = "John"
-# }
+resource "aws_iam_group" "dev" {
+  name = "Dev"
+}
 
-# resource "aws_iam_group_membership" "john_group_membership" {
-#   group = aws_iam_group.admin_group.name
-#   users = [aws_iam_user.john_user.name]
-# }
+# Create IAM Users
+resource "aws_iam_user" "john" {
+  name = "John"
+}
 
-# # Create Stuart user and add to Dev group
-# resource "aws_iam_user" "stuart_user" {
-#   name = "Stuart"
-# }
+resource "aws_iam_user" "stuart" {
+  name = "Stuart"
+}
 
-# resource "aws_iam_group_membership" "stuart_group_membership" {
-#   group = aws_iam_group.dev_group.name
-#   users = [aws_iam_user.stuart_user.name]
-# }
+# Add John to Admin Group
+resource "aws_iam_group_membership" "admin_john" {
+  name   = "John"
+  users  = [aws_iam_user.john.name]
+  group  = aws_iam_group.admin.name
+}
 
-# # Create an IAM policy to allow full access to RDS instance
-# resource "aws_iam_policy" "rds_full_access_policy" {
-#   name = "RDSFullAccessPolicy"
-#   policy = jsonencode({
-#     Version = "2012-10-17"
-#     Statement = [
-#       {
-#         Effect = "Allow"
-#         Action = [
-#           "rds:*"
-#         ]
-#         Resource = "*"
-#       }
-#     ]
-#   })
-# }
+# Add Stuart to Dev Group
+resource "aws_iam_group_membership" "dev_stuart" {
+  name   = "Stuart"
+  users  = [aws_iam_user.stuart.name]
+  group  = aws_iam_group.dev.name
+}
+
+# Create IAM Policy
+resource "aws_iam_policy" "rds_admin_policy" {
+  name        = "rds_admin_policy"
+  path        = "/"
+  description = "Allow full access to RDS"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "rds:*",
+      "Effect": "Allow",
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+}
+
+# Attach IAM Policy to Admin Group
+resource "aws_iam_group_policy_attachment" "admin_policy_attachment" {
+  group       = aws_iam_group.admin.name
+  policy_arn  = aws_iam_policy.rds_admin_policy.arn
+}
 
 # # Create an IAM policy to allow view and access to RDS monitoring metrics
-# resource "aws_iam_policy" "rds_monitoring_policy" {
-#   name = "RDSMonitoringPolicy"
-#   policy = jsonencode({
-#     Version = "2012-10-17"
-#     Statement = [
-#       {
-#         Effect = "Allow"
-#         Action = [
-#           "cloudwatch:GetMetricData",
-#           "cloudwatch:GetMetricStatistics",
-#           "cloudwatch:ListMetrics"
-#         ]
-#         Resource = "*"
-#       }
-#     ]
-#   })
-# }
+ resource "aws_iam_policy" "rds_monitoring_policy" {
+   name = "RDSMonitoringPolicy"
+   policy = jsonencode({
+     Version = "2012-10-17"
+     Statement = [
+       {
+         Effect = "Allow"
+         Action = [
+           "cloudwatch:GetMetricData",
+           "cloudwatch:GetMetricStatistics",
+           "cloudwatch:ListMetrics"
+         ]
+         Resource = "*"
+       }
+     ]
+   })
+ }
 
-# # Attach policies to groups
-# resource "aws_iam_policy_attachment" "admin_policy_attachment" {
-#   name = "AdminPolicyAttachment"
-#   policy_arn = aws_iam_policy.rds_full_access_policy.arn
-#   groups = [aws_iam_group.admin_group.name]
-# }
-
-# resource "aws_iam_policy_attachment" "dev_policy_attachment" {
-#   name = "DevPolicyAttachment"
-#   policy_arn = aws_iam_policy.rds_monitoring_policy.arn
-#   groups = [aws_iam_group.dev_group.name]
-# }
+# Attach IAM Policy to Dev Group
+resource "aws_iam_group_policy_attachment" "rds_monitoring_policy_attachment" {
+  group       = aws_iam_group.dev.name
+  policy_arn  = aws_iam_policy.rds_monitoring_policy.arn
+}

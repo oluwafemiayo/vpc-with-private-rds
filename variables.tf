@@ -1,3 +1,8 @@
+variable "cidr_blocks" { 
+    type = list(string)
+    default = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"] 
+}
+
 
 variable "vpc_private_subnets" {
     type = list(string)
@@ -31,7 +36,7 @@ variable "dns_hostnames" {
 
 variable "ingress" {
     type = list(number)
-    default = [80,443,8080]
+    default = [22,80,443,8080]
 }
 
 variable "egress" {
@@ -39,8 +44,8 @@ variable "egress" {
     default = [80,443]
 }
 
-output "sg_name" {
-    value = aws_security_group.web_traffic.name
+output "pub_ip" {
+    value = aws_eip.eip.public_ip
 }
 
 

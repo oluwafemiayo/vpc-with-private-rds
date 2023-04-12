@@ -14,7 +14,7 @@ resource "aws_security_group" "rds_sg" {
     from_port = 3306
     to_port = 3306
     protocol = "tcp"
-    cidr_blocks =  ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+    cidr_blocks =  var.cidr_blocks
     
   }
 }
@@ -46,22 +46,23 @@ resource "aws_db_instance" "private_rds" {
 
 
 # Create a new ec2 instance for Jenkins
-resource "aws_instance" "jenkins_server" {
+resource "aws_instance" "web_server" {
     ami = data.aws_ami.amzlinux2.id
-    instance_type = "t2.micro"
-    key_name      = "my-key-pair"
+    instance_type = "t2.medium"
+    key_name      = "ssh"
     associate_public_ip_address = true
+    user_data = file("./website.sh")
 
     tags = {
-        Name = "jenkins-server"
+        Name = "web-server"
     }
     
-    subnet_id     = module.vpc.private_subnets[0]
+    subnet_id     = module.vpc.public_subnets[0]
     vpc_security_group_ids = [aws_security_group.web_traffic.id]
 }
 
 output "instance_id" {
-    value = aws_instance.jenkins_server.id
+    value = aws_instance.web_server.id
 }
 
 
@@ -92,3 +93,11 @@ resource "aws_security_group" "web_traffic" {
         }
     }
 }
+
+
+resource "aws_eip" "eip" {
+  instance = aws_instance.web_server.id
+}
+
+
+
