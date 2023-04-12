@@ -9,5 +9,5 @@ output "instance_id" {
 
 
 output "pub_ip" {
-    value = "aws_eip.eip.public_ip"
+    value = aws_eip.eip.public_ip
 }
