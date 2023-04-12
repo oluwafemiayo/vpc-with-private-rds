@@ -8,7 +8,7 @@ resource "aws_db_subnet_group" "private_rds_subnet_group" {
 # Create a security group for the RDS instance
 resource "aws_security_group" "rds_sg" {
   name_prefix = "rds_sg_"
-  vpc_id = module.vpc.vpc_id
+  vpc_id = var.vpc_id
 
   ingress {
     from_port = 3306
@@ -30,10 +30,10 @@ resource "aws_db_instance" "private_rds" {
   skip_final_snapshot = true
 
 # Attach subnet to db instance
-  db_subnet_group_name = aws_db_subnet_group.private_rds_subnet_group.name
+  db_subnet_group_name = var.db_subnet_group_name
 
 # Attach security group to db instance
-  vpc_security_group_ids = [aws_security_group.rds_sg.id]
+  vpc_security_group_ids = [aws_security_group.web_traffic.id]
 
 
   tags = {
@@ -43,7 +43,10 @@ resource "aws_db_instance" "private_rds" {
 }
 
 
-
+# Create Elastic IP for the instance
+resource "aws_eip" "eip" {
+  instance = var.instance
+}
 
 # Create a new ec2 instance for Jenkins
 resource "aws_instance" "web_server" {
@@ -57,19 +60,14 @@ resource "aws_instance" "web_server" {
         Name = "web-server"
     }
     
-    subnet_id     = module.vpc.public_subnets[0]
+    subnet_id     = var.subnet_id
     vpc_security_group_ids = [aws_security_group.web_traffic.id]
 }
-
-output "instance_id" {
-    value = aws_instance.web_server.id
-}
-
 
 # Ec2 Security Group
 resource "aws_security_group" "web_traffic" {
     name = "Allow Web Traffic"
-    vpc_id = module.vpc.vpc_id
+    vpc_id = var.vpc_id
 
     dynamic "ingress" {
         iterator = port
@@ -94,10 +92,6 @@ resource "aws_security_group" "web_traffic" {
     }
 }
 
-
-resource "aws_eip" "eip" {
-  instance = aws_instance.web_server.id
-}
 
 
 

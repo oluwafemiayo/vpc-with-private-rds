@@ -3,7 +3,6 @@ variable "cidr_blocks" {
     default = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"] 
 }
 
-
 variable "vpc_private_subnets" {
     type = list(string)
     default = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
@@ -19,7 +18,6 @@ variable "vpc_azs" {
     default = ["us-east-1a", "us-east-1b" ]
 }
 
-
 variable "vpc_cidr" {
     default = "10.0.0.0/16"
 }
@@ -28,12 +26,7 @@ variable "dns_hostnames" {
     default = "true"
 }
 
-# variable {}
-# 
-
-
-
-
+ 
 variable "ingress" {
     type = list(number)
     default = [22,80,443,8080]
@@ -45,13 +38,26 @@ variable "egress" {
 }
 
 output "pub_ip" {
-    value = aws_eip.eip.public_ip
+    value = "aws_eip.eip.public_ip"
+}
+
+ variable "vpc_id" {
+    default = "module.vpc.vpc_id"
+}
+
+variable "subnet_id" {
+    default = "module.vpc.public_subnets[0]"
 }
 
 
+variable "instance"{
+    default = "aws_instance.web_server.id"
+}
 
-# variable {}
-# 
+variable "db_subnet_group_name" {
+    default = "aws_db_subnet_group.private_rds_subnet_group.name"
+}
+
 # variable {}
 # 
 # variable {}
