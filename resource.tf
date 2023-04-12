@@ -22,11 +22,11 @@ resource "aws_security_group" "rds_sg" {
 # Create an RDS instance
 resource "aws_db_instance" "private_rds" {
   identifier = "my-private-rds"
-  engine = "mysql"
-  instance_class = "db.t2.micro"
-  username = "myuser"
-  password = "mypassword"
-  allocated_storage = 10
+  engine = var.engine
+  instance_class = var.instance_class
+  username = var.username
+  password = var.password
+  allocated_storage = var.allocated_storage
   skip_final_snapshot = true
 
 # Attach subnet to db instance

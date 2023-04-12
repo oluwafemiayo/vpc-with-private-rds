@@ -37,11 +37,29 @@ variable "egress" {
     default = [80,443]
 }
 
+variable "username" {
+  type        = string
+  description = ""
+}
+
+variable "password" {
+  type        = string
+  description = ""
+  sensitive   = true
+}
+
+variable "instance_class" {
+  type        = string
+  description = ""
+}
 
 
+variable "engine" {
+  type        = string
+  description = ""
+}
 
-
-
-
-
-
+variable "allocated_storage" {
+  type        = string
+  description = ""
+}
