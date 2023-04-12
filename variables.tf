@@ -37,33 +37,11 @@ variable "egress" {
     default = [80,443]
 }
 
-output "pub_ip" {
-    value = "aws_eip.eip.public_ip"
-}
-
- variable "vpc_id" {
-    default = "module.vpc.vpc_id"
-}
-
-variable "subnet_id" {
-    default = "module.vpc.public_subnets[0]"
-}
 
 
-variable "instance"{
-    default = "aws_instance.web_server.id"
-}
 
-variable "db_subnet_group_name" {
-    default = "aws_db_subnet_group.private_rds_subnet_group.name"
-}
 
-# variable {}
-# 
-# variable {}
-# 
-# variable {}
-# 
-# variable {}
-# 
-# variable {}
+
+
+
+

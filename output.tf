@@ -6,3 +6,8 @@ output "sg_name" {
 output "instance_id" {
     value = aws_instance.web_server.id
 }
+
+
+output "pub_ip" {
+    value = "aws_eip.eip.public_ip"
+}
