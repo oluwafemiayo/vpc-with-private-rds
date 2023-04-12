@@ -49,18 +49,20 @@ resource "aws_db_instance" "private_rds" {
 resource "aws_instance" "jenkins_server" {
     ami = data.aws_ami.amzlinux2.id
     instance_type = "t2.micro"
+    key_name      = "my-key-pair"
+    associate_public_ip_address = true
+
     tags = {
         Name = "jenkins-server"
     }
-
-    #subnet_id = var.aws_db_subnet_group
+    
+    subnet_id     = module.vpc.private_subnets[0]
     vpc_security_group_ids = [aws_security_group.web_traffic.id]
 }
 
 output "instance_id" {
     value = aws_instance.jenkins_server.id
 }
-
 
 
 # Ec2 Security Group
