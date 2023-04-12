@@ -14,10 +14,8 @@ resource "aws_security_group" "rds_sg" {
     from_port = 3306
     to_port = 3306
     protocol = "tcp"
-    cidr_blocks = {
-        type = list(string)
-        default = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
-    } 
+    cidr_blocks =  ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+    
   }
 }
 
@@ -38,7 +36,6 @@ resource "aws_db_instance" "private_rds" {
   vpc_security_group_ids = [aws_security_group.rds_sg.id]
 
 
-
   tags = {
     Name = "myrds"
   }
@@ -46,3 +43,50 @@ resource "aws_db_instance" "private_rds" {
 }
 
 
+
+
+# Create a new ec2 instance for Jenkins
+resource "aws_instance" "jenkins_server" {
+    ami = data.aws_ami.amzlinux2.id
+    instance_type = "t2.micro"
+    tags = {
+        Name = "jenkins-server"
+    }
+
+    #subnet_id = var.aws_db_subnet_group
+    vpc_security_group_ids = [aws_security_group.web_traffic.id]
+}
+
+output "instance_id" {
+    value = aws_instance.jenkins_server.id
+}
+
+
+
+# Ec2 Security Group
+resource "aws_security_group" "web_traffic" {
+    name = "Allow Web Traffic"
+    vpc_id = module.vpc.vpc_id
+
+    dynamic "ingress" {
+        iterator = port
+        for_each = var.ingress
+        content {
+            from_port = port.value
+            to_port = port. value
+            protocol = "TCP"
+            cidr_blocks = ["0.0.0.0/0"]
+        }
+    }
+
+        dynamic "egress" {
+        iterator = port
+        for_each = var.egress
+        content {
+            from_port = port.value
+            to_port = port. value
+            protocol = "TCP"
+            cidr_blocks = ["0.0.0.0/0"]
+        }
+    }
+}

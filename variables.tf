@@ -25,6 +25,26 @@ variable "dns_hostnames" {
 
 # variable {}
 # 
+
+
+
+
+variable "ingress" {
+    type = list(number)
+    default = [80,443,8080]
+}
+
+variable "egress" {
+    type = list(number)
+    default = [80,443]
+}
+
+output "sg_name" {
+    value = aws_security_group.web_traffic.name
+}
+
+
+
 # variable {}
 # 
 # variable {}
